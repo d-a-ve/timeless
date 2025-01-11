@@ -11,11 +11,14 @@ export async function GET(request: NextRequest) {
 			error: "Invalid parameters. UserId or secret is missing",
 		});
 	}
+	try {
+		const { account } = await createAdminClient();
+		const session = await account.createSession(userId, secret);
 
-	const { account } = await createAdminClient();
-	const session = await account.createSession(userId, secret);
-
-	await setSession(session.secret);
-  // TODO: CHANGE THIS WHEN APP IS READY.
-	return NextResponse.redirect(`${request.nextUrl.origin}/account`);
+		await setSession(session.secret);
+		// TODO: CHANGE THIS WHEN APP IS READY.
+		return NextResponse.redirect(`${request.nextUrl.origin}/account`);
+	} catch (error) {
+		return NextResponse.json({ error: `Something went wrong: ${error}` });
+	}
 }

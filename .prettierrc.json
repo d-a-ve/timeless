@@ -1,0 +1,21 @@
+{
+  "trailingComma": "all",
+  "semi": true,
+  "tabWidth": 2,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "bracketSpacing": true,
+  "printWidth": 80,
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ],
+  "overrides": [
+    {
+      "files": "*.ts{,x}",
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ],
+  "endOfLine": "auto"
+}

@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Timeless shop",
-  description: "Get yourself and your loved ones statement pieces that are timeless.",
+  description:
+    "Get yourself and your loved ones statement pieces that are timeless.",
 };
 
 export default function RootLayout({

@@ -21,6 +21,13 @@ export type Review = {
   reviewerEmail: string;
 };
 
+export type Paginated<TData> = {
+  data: TData,
+  total: number,
+  skip: number,
+  limit: number
+}
+
 export type Product = {
   id: number;
   title: string;

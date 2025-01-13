@@ -1,4 +1,5 @@
 "use server";
+import "server-only";
 
 import { Account, Client } from "node-appwrite";
 import { CONFIG_CLIENT, CONFIG_SERVER } from "~/config";

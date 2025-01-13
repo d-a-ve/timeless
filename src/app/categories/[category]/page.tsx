@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { getProductsByCategory } from "~/actions/products.actions";
+import { AddToCartButton } from "~/components/cart/add-to-cart-button";
+import { AppLink } from "~/components/ui/app-link";
 
 export default async function ProductCategoryListPage({
   params,
@@ -18,16 +20,22 @@ export default async function ProductCategoryListPage({
     );
   }
 
-  if(productsData.data.total === 0) {
+  if (productsData.data.total === 0) {
     return (
-      <div>We do not have data for the category you searched for: {category}</div>
-    )
+      <div>
+        We do not have data for the category you searched for: {category}
+      </div>
+    );
   }
 
   return (
     <div className="grid grid-cols-5 gap-6">
       {productsData.data.data.map((product) => (
-        <div key={product.id} className="space-y-4 overflow-hidden rounded-lg grid grid-rows-[auto,1fr,auto]">
+        <AppLink
+          href={`/categories/${category}/${product.id}`}
+          key={product.id}
+          className="grid grid-rows-[auto,1fr,auto] space-y-4 overflow-hidden rounded-lg"
+        >
           <div className="h-64">
             <Image
               src={product.thumbnail}
@@ -41,8 +49,8 @@ export default async function ProductCategoryListPage({
             <p>{product.title}</p>
             <p>{product.description}</p>
           </div>
-            <button>Add to cart</button>
-        </div>
+          <AddToCartButton />
+        </AppLink>
       ))}
     </div>
   );

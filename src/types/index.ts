@@ -1,4 +1,4 @@
-export * from './utils';
+export * from "./utils";
 
 type Dimensions = {
   width: number;
@@ -22,11 +22,11 @@ export type Review = {
 };
 
 export type Paginated<TData> = {
-  data: TData,
-  total: number,
-  skip: number,
-  limit: number
-}
+  data: TData;
+  total: number;
+  skip: number;
+  limit: number;
+};
 
 export type Product = {
   id: number;
@@ -51,4 +51,9 @@ export type Product = {
   meta: Meta;
   images: string[];
   thumbnail: string;
+};
+
+export type CartItem = {
+  quantity: number;
+  productId: number;
 };

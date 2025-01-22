@@ -8,6 +8,7 @@ export type CartState = {
 };
 
 // actions
+// initCart
 // addToCart
 // removeFromCart
 // clearCart
@@ -19,6 +20,8 @@ export type CartActions = {
   clearCart: () => void;
   incrementProductCount: (productId: number) => void;
   decrementProductCount: (productId: number) => void;
+  initCart: (cart: CartState["cart"]) => void;
+  isProductInCart: (productid: number) => boolean;
 };
 
 export type CartStore = CartState & CartActions;
@@ -28,8 +31,16 @@ const defaultInitCart: CartState = {
 };
 
 export const createCartStore = (initState: CartState = defaultInitCart) => {
-  return createStore<CartStore>()((set) => ({
+  return createStore<CartStore>()((set, get) => ({
     ...initState,
+    initCart: (cart) =>
+      set(() => ({
+        cart,
+      })),
+    isProductInCart: (productId) =>
+      get().cart.findIndex(({ product }) => productId === product.id) !== -1
+        ? true
+        : false,
     addToCart: (product, productCount) =>
       set((state) => {
         const newCart = state.cart.slice();

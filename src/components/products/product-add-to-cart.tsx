@@ -1,22 +1,21 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { CartItem, Product } from "~/types";
-import { getCartCookie, setCartCookie } from "../cart/cart.cookie";
+import { useCartStore } from "~/providers/cart-provider";
+import { Product } from "~/types";
+import { AddToCartButton, addToCart } from "../cart/add-to-cart-button";
 import { QUANTITY_INPUT_NAME, QuantityControls } from "../ui/quantity-controls";
 
-export const LOCAL_STORAGE_CART_NAME = "timeless-cart";
-
-export default function ProductAddToCart({
-  product,
-  added,
-}: {
-  product: Product;
-  added: boolean;
-}) {
+export default function ProductAddToCart({ product }: { product: Product }) {
   const [error, setError] = useState<string | null>(null);
+  const addToCartStoreAction = useCartStore((cart) => cart.addToCart);
+  const isProductInCart = useCartStore((cart) =>
+    cart.isProductInCart(product.id),
+  );
 
-  const addToCart = async (e: FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
+    if (isProductInCart) return;
+
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
@@ -30,26 +29,14 @@ export default function ProductAddToCart({
       return setError("Please increase quantity to at least 1 to add to cart.");
     }
 
-    // check if user is authenticated
-    // if yes, add it to cart table on appwrite. else add to localstorage
-
-    const localCart = await getCartCookie();
-
-    const parsedCart: CartItem[] = localCart ? JSON.parse(localCart) : [];
-
-    parsedCart.push({
-      quantity,
-      productId: product.id,
-    });
-
-    setCartCookie(JSON.stringify(parsedCart));
+    addToCart(product, quantity, addToCartStoreAction);
   };
 
   return (
-    <form onSubmit={addToCart} className="space-y-2">
+    <form onSubmit={submitHandler} className="space-y-2">
       <div className="flex items-center gap-8">
         <QuantityControls />
-        <button>{added ? "Added" : "Add"} to cart</button>
+        <AddToCartButton product={product} type="submit" />
       </div>
       {error && (
         <p className="w-fit rounded-lg bg-red-500 px-3 py-1.5 text-sm text-white">

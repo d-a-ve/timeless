@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import { CartButton } from "~/components/cart/cart-button";
 import GlobalProvider from "~/providers";
 import "./globals.css";
@@ -33,7 +34,9 @@ export default function RootLayout({
         <GlobalProvider>
           <header className="flex items-center justify-between gap-4 p-4">
             <p>Header component</p>
-            <CartButton />
+            <Suspense>
+              <CartButton />
+            </Suspense>
           </header>
           {children}
         </GlobalProvider>

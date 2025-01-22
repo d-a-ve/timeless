@@ -31,26 +31,30 @@ export default async function ProductCategoryListPage({
   return (
     <div className="grid grid-cols-5 gap-6">
       {productsData.data.data.map((product) => (
-        <AppLink
-          href={`/categories/${category}/${product.id}`}
+        <article
           key={product.id}
-          className="grid grid-rows-[auto,1fr,auto] space-y-4 overflow-hidden rounded-lg"
+          className="grid grid-rows-[1fr,auto] overflow-hidden rounded-lg"
         >
-          <div className="h-64">
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              width={340}
-              height={340}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="space-y-3 px-3">
-            <p>{product.title}</p>
-            <p>{product.description}</p>
-          </div>
-          <AddToCartButton />
-        </AppLink>
+          <AppLink
+            href={`/categories/${category}/${product.id}`}
+            className="grid grid-rows-[auto,1fr] space-y-4"
+          >
+            <div className="h-64">
+              <Image
+                src={product.thumbnail}
+                alt={product.title}
+                width={340}
+                height={340}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="space-y-3 px-3">
+              <p>{product.title}</p>
+              <p>{product.description}</p>
+            </div>
+          </AppLink>
+          <AddToCartButton product={product} />
+        </article>
       ))}
     </div>
   );

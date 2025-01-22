@@ -1,19 +1,14 @@
 import Image from "next/image";
 import { getProduct } from "~/actions/products.actions";
-import { getCartCookie } from "~/components/cart/cart.cookie";
 import ProductAddToCart from "~/components/products/product-add-to-cart";
 import { formatDate } from "~/lib/utils";
-import { CartItem } from "~/types";
 
 export default async function ProductDetailPage({
   params,
 }: {
   params: Promise<{ productId: string }>;
 }) {
-  const [{ productId }, cartCookie] = await Promise.all([
-    params,
-    getCartCookie(),
-  ]);
+  const { productId } = await params;
   const productResponse = await getProduct(productId);
 
   if (!productResponse.data || productResponse.error) {
@@ -21,11 +16,11 @@ export default async function ProductDetailPage({
   }
 
   const { data: product } = productResponse;
-  const productAddedTocart = cartCookie
-    ? JSON.parse(cartCookie).some(
-        (cart: CartItem) => cart.productId === product.id,
-      )
-    : false;
+  // const productAddedTocart = cartCookie
+  //   ? JSON.parse(cartCookie).some(
+  //       (cart: CartItem) => cart.productId === product.id,
+  //     )
+  //   : false;
 
   return (
     <div>
@@ -47,7 +42,7 @@ export default async function ProductDetailPage({
           <p>{product.description}</p>
           <p>Tags: {product.tags.join(", ")}</p>
           <p>USD {product.price}</p>
-          <ProductAddToCart product={product} added={productAddedTocart} />
+          <ProductAddToCart product={product} />
         </div>
       </div>
       <div className="space-y-6">

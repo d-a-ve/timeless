@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CartButton } from "~/components/cart/cart-button";
+import GlobalProvider from "~/providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +30,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <GlobalProvider>
+          <header className="flex items-center justify-between gap-4 p-4">
+            <p>Header component</p>
+            <CartButton />
+          </header>
+          {children}
+        </GlobalProvider>
+        <footer>
+          <p>Footer component</p>
+        </footer>
       </body>
     </html>
   );

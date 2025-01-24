@@ -2,7 +2,7 @@
 
 import { CircleX } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppLink } from "~/components/ui/app-link";
 import {
   Drawer,
@@ -32,6 +32,7 @@ export function CartButtonClient({
 }: {
   cartProp: CartState["cart"];
 }) {
+  const [open, setOpen] = useState(false);
   const initCart = useCartStore((cart) => cart.initCart);
   const cart = useCartStore((cart) => cart.cart);
   const cartSubtotal = getCartSubtotal(cart);
@@ -44,7 +45,7 @@ export function CartButtonClient({
   }, [cartProp, initCart]);
 
   return (
-    <Drawer direction="right">
+    <Drawer direction="right" open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         <button className="relative flex items-center gap-2 rounded-lg bg-slate-300 p-1">
           My Cart
@@ -89,7 +90,8 @@ export function CartButtonClient({
             </DrawerClose>
             <AppLink
               href={`/${URL_SEGMENTS.CHECKOUT}`}
-              className="bg-green-500 p-2 text-white"
+              className="block bg-green-500 p-2 text-white"
+              onClick={() => setOpen(false)}
             >
               Checkout
             </AppLink>

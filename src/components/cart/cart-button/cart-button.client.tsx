@@ -17,15 +17,7 @@ import Separator from "~/components/ui/separator";
 import { URL_SEGMENTS } from "~/constants/url.const";
 import { CartState } from "~/lib/store/cart-store";
 import { useCartStore } from "~/providers/cart-provider";
-
-function getCartSubtotal(cart: CartState["cart"]) {
-  let subtotal = 0;
-  cart.forEach(({ product, productCount }) => {
-    subtotal += productCount * product.price;
-  });
-
-  return Number(subtotal.toFixed(2));
-}
+import { getCartSubtotal } from "../util";
 
 export function CartButtonClient({
   cartProp,
@@ -41,7 +33,6 @@ export function CartButtonClient({
 
   useEffect(() => {
     initCart(cartProp);
-    console.log("init cart!!");
   }, [cartProp, initCart]);
 
   return (

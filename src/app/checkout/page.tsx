@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { getProduct } from "~/actions/products.actions";
 import { getCartCookie } from "~/components/cart/cart.cookie";
+import { getCartSubtotal } from "~/components/cart/util";
 import { CartState } from "~/lib/store/cart-store";
 import { CartItem } from "~/types";
 
@@ -21,12 +23,14 @@ export default async function CheckoutPage() {
     }
   });
 
-  console.log(cart);
+  const cartSubtotal = getCartSubtotal(cart);
+  // VAT is 5% of total amount to be paid
+  const cartVAT = Number((cartSubtotal * 0.05).toFixed(2));
 
   return (
-    <div>
-      <form className="space-y-6 p-4">
-        <div className="space-y-4">
+    <form className="space-y-6 p-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4 rounded-lg border border-gray-400 p-3">
           <h2 className="text-xl font-semibold">Billing Information</h2>
 
           <div className="grid grid-cols-2 gap-4">
@@ -142,14 +146,38 @@ export default async function CheckoutPage() {
             />
           </div>
         </div>
-
-        <button
-          type="submit"
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Continue to Payment
-        </button>
-      </form>
-    </div>
+        <div className="rounded-lg border border-gray-400 p-3">
+          {cart.map(({ product, productCount }) => (
+            <article key={product.id} className="flex items-start gap-3">
+              <div className="size-16 shrink-0">
+                <Image
+                  src={product.thumbnail}
+                  alt={product.title}
+                  width={400}
+                  height={400}
+                  className="size-full"
+                />
+              </div>
+              <div className="grow">
+                <p className="line-clamp-1">{product.title}</p>
+                <p className="line-clamp-1">{product.description}</p>
+              </div>
+              <p className="shrink-0">Count: {productCount}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p>Subtotal: ${cartSubtotal}</p>
+        <p>VAT: ${cartVAT}</p>
+        <p>Total: ${cartSubtotal + cartVAT}</p>
+      </div>
+      <button
+        type="submit"
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+      >
+        Continue to Payment
+      </button>
+    </form>
   );
 }

@@ -3,8 +3,10 @@ import { Product } from "~/types";
 
 // product
 // a product count added
+export type Cart = { product: Product; productCount: number }[];
+
 export type CartState = {
-  cart: { product: Product; productCount: number }[];
+  cart: Cart;
 };
 
 // actions

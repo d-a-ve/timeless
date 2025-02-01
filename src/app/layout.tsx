@@ -38,7 +38,7 @@ export default function RootLayout({
               <CartButton />
             </Suspense>
           </header>
-          {children}
+          <main>{children}</main>
         </GlobalProvider>
         <footer>
           <p>Footer component</p>

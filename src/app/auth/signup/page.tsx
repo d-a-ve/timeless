@@ -5,7 +5,7 @@ import { URL_SEGMENTS } from "~/constants/url.const";
 
 export default function SignupPage() {
   return (
-    <div className="grid min-h-screen place-items-center">
+    <div className="grid h-full place-items-center">
       <div className="w-full max-w-md space-y-8 rounded-lg border p-8 shadow-md">
         <h1 className="text-center text-2xl font-bold">Sign Up</h1>
         <SignupForm signupAction={signupAction} />

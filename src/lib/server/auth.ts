@@ -3,18 +3,19 @@ import "server-only";
 
 import { headers } from "next/headers";
 import { ID, OAuthProvider } from "node-appwrite";
+import { cache } from "react";
 import { createAdminClient, createSessionClient } from "./appwrite.config";
 import { deleteSession, setSession } from "./session";
 import { sendError, sendResponse } from "./util";
 
-export async function getSignedInUser() {
+export const getSignedInUser = cache(async () => {
   try {
     const { account } = await createSessionClient();
-    return await account.get();
+    return sendResponse(await account.get());
   } catch (error) {
     return sendError(error);
   }
-}
+});
 
 export async function signinWithEmailAndPassword({
   email,

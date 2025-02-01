@@ -66,6 +66,8 @@ export default function SigninForm({
           {error}
         </p>
       )}
+
+      {/* TODO: add a button for people to be able to sign in a a guest (with an already existing user credentials) */}
       <button
         type="submit"
         className="w-full rounded-md bg-blue-500 py-2 text-white hover:bg-blue-600"

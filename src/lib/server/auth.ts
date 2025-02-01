@@ -5,59 +5,81 @@ import { headers } from "next/headers";
 import { ID, OAuthProvider } from "node-appwrite";
 import { createAdminClient, createSessionClient } from "./appwrite.config";
 import { deleteSession, setSession } from "./session";
+import { sendError, sendResponse } from "./util";
 
 export async function getSignedInUser() {
-	try {
-		const { account } = await createSessionClient();
-		return await account.get();
-	} catch (error) {
-		return error;
-	}
+  try {
+    const { account } = await createSessionClient();
+    return await account.get();
+  } catch (error) {
+    return sendError(error);
+  }
+}
+
+export async function signinWithEmailAndPassword({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  try {
+    const { account } = await createAdminClient();
+
+    const session = await account.createEmailPasswordSession(email, password);
+
+    await setSession(session.secret);
+
+    return sendResponse("User signed in successfully.");
+  } catch (error) {
+    return sendError(error);
+  }
 }
 
 export async function signupWithEmailAndPassword({
-	email,
-	password,
-	name,
+  email,
+  password,
+  name,
 }: {
-	email: string;
-	password: string;
-	name: string;
+  email: string;
+  password: string;
+  name: string;
 }) {
-	try {
-		const { account } = await createAdminClient();
-		await account.create(ID.unique(), email, password, name);
+  try {
+    const { account } = await createAdminClient();
 
-		const session = await account.createEmailPasswordSession(email, password);
+    await account.create(ID.unique(), email, password, name);
 
-		await setSession(session.secret);
+    const session = await account.createEmailPasswordSession(email, password);
 
-		return { message: "User created successfully" };
-	} catch (error) {
-		return error;
-	}
+    await setSession(session.secret);
+
+    return sendResponse("User created successfully");
+  } catch (error) {
+    return sendError(error);
+  }
 }
 
 export async function signOut() {
-	const { account } = await createSessionClient();
+  const { account } = await createSessionClient();
 
-	// TODO: check if this is the right way to do this
-	await Promise.all([deleteSession(), account.deleteSession("current")]);
+  // TODO: check if this is the right way to do this
+  await Promise.all([deleteSession(), account.deleteSession("current")]);
 }
 
 export async function signUpWithGithub() {
-	try {
-		const { account } = await createAdminClient();
-		const origin = (await headers()).get("origin");
+  try {
+    const { account } = await createAdminClient();
+    const origin = (await headers()).get("origin");
 
-		const redirectUrl = await account.createOAuth2Token(
-			OAuthProvider.Google,
-			`${origin}/oauth`,
-			`${origin}/signup`
-		);
+    const redirectUrl = await account.createOAuth2Token(
+      OAuthProvider.Google,
+      `${origin}/oauth`,
+      `${origin}/signup`,
+    );
 
-		return redirectUrl;
-	} catch (error) {
-		return error;
-	}
+    return sendResponse({ redirectUrl });
+  } catch (error) {
+    return sendError(error);
+  }
 }

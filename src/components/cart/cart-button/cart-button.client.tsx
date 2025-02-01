@@ -3,7 +3,7 @@
 import { CircleX } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useDebounce } from "~/actions/hooks/useDebounce";
+import { useDebounce } from "~/hooks/useDebounce";
 import { AppLink } from "~/components/ui/app-link";
 import {
   Drawer,

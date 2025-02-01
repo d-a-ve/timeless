@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} grid min-h-screen grid-rows-[auto,1fr,auto] antialiased`}
       >
         <GlobalProvider>
           <header className="flex items-center justify-between gap-4 p-4">

@@ -65,7 +65,11 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
         cart: state.cart.map(({ product, productCount }) => ({
           product,
           productCount:
-            productId !== product.id ? productCount : --productCount,
+            productId !== product.id
+              ? productCount
+              : productCount === 1
+                ? 1
+                : --productCount,
         })),
       })),
   }));

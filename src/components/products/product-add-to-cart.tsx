@@ -14,9 +14,10 @@ export default function ProductAddToCart({ product }: { product: Product }) {
   );
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
     if (isProductInCart) return;
 
-    e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
     const quantityFormData = formData.get(QUANTITY_INPUT_NAME);

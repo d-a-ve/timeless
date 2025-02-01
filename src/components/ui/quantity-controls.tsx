@@ -12,7 +12,7 @@ export function QuantityControls({
   const [quantity, setQuantity] = useState(defaultQuantity);
 
   const increment = () => setQuantity((prev) => prev + 1);
-  const decrement = () => setQuantity((prev) => prev < 1 ? 0 : prev - 1);
+  const decrement = () => setQuantity((prev) => prev <= 1 ? 1 : prev - 1);
 
   return (
     <div className="flex items-center gap-4">

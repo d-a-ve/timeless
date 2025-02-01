@@ -9,18 +9,18 @@ export default async function ProductCategoryListPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
-  const productsData = await getProductsByCategory(category);
+  const { data: products, error } = await getProductsByCategory(category);
 
-  if (!productsData.data || productsData.error) {
+  if (!products || error) {
     return (
       <div>
         <p>Somthing went wrong, please try again</p>
-        <p>{productsData.error}</p>
+        <p>{error}</p>
       </div>
     );
   }
 
-  if (productsData.data.total === 0) {
+  if (products.total === 0) {
     return (
       <div>
         We do not have data for the category you searched for: {category}
@@ -30,7 +30,7 @@ export default async function ProductCategoryListPage({
 
   return (
     <div className="grid grid-cols-5 gap-6">
-      {productsData.data.data.map((product) => (
+      {products.data.map((product) => (
         <article
           key={product.id}
           className="grid grid-rows-[1fr,auto] overflow-hidden rounded-lg"

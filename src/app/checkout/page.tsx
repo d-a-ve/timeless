@@ -2,7 +2,7 @@ import { getProduct } from "~/actions/products.actions";
 import { getCartCookie } from "~/components/cart/cart.cookie";
 import { getCartSubtotal } from "~/components/cart/util";
 import { CheckoutForm } from "~/components/checkout/checkout-form";
-import { CartState } from "~/lib/store/cart-store";
+import { Cart } from "~/lib/store/cart-store";
 import { CartItem } from "~/types";
 
 export default async function CheckoutPage() {
@@ -12,7 +12,7 @@ export default async function CheckoutPage() {
   const cartResults = await Promise.all(
     cartCookie.map(({ productId }) => getProduct(productId.toString())),
   );
-  const cart: CartState["cart"] = [];
+  const cart: Cart = [];
 
   cartResults.forEach((value, idx) => {
     if (value.data) {

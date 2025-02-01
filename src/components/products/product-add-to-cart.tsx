@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useCartStore } from "~/providers/cart-provider";
 import { Product } from "~/types";
-import { AddToCartButton, addToCart } from "../cart/add-to-cart-button";
+import { AddToCartButton, addToCartAction } from "../cart/add-to-cart-button";
 import { QUANTITY_INPUT_NAME, QuantityControls } from "../ui/quantity-controls";
 
 export default function ProductAddToCart({ product }: { product: Product }) {
@@ -29,7 +29,7 @@ export default function ProductAddToCart({ product }: { product: Product }) {
       return setError("Please increase quantity to at least 1 to add to cart.");
     }
 
-    addToCart(product, quantity, addToCartStoreAction);
+    addToCartAction(product, quantity, addToCartStoreAction);
   };
 
   return (

@@ -5,7 +5,7 @@ import { useCartStore } from "~/providers/cart-provider";
 import { CartItem, Product } from "~/types";
 import { getCartCookie, setCartCookie } from "./cart.cookie";
 
-export async function addToCart(
+export async function addToCartAction(
   product: Product,
   quantity: number,
   addProductToCart: CartActions["addToCart"],
@@ -31,21 +31,22 @@ export function AddToCartButton({
   product,
   quantity,
   type = "button",
+  productAdded,
 }: {
   product: Product;
   quantity?: number;
   type?: HTMLButtonElement["type"];
+  productAdded?: boolean;
 }) {
   const addToCartStoreAction = useCartStore((cart) => cart.addToCart);
-  const isProductInCart = useCartStore((cart) =>
-    cart.isProductInCart(product.id),
-  );
+  const isProductInCart =
+    useCartStore((cart) => cart.isProductInCart(product.id)) || productAdded;
 
   return (
     <button
       onClick={
         type === "button" && !isProductInCart
-          ? () => addToCart(product, quantity || 1, addToCartStoreAction)
+          ? () => addToCartAction(product, quantity || 1, addToCartStoreAction)
           : undefined
       }
       className="relative z-10"

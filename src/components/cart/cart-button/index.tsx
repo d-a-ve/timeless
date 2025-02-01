@@ -1,5 +1,5 @@
 import { getProduct } from "~/actions/products.actions";
-import { CartState } from "~/lib/store/cart-store";
+import { Cart } from "~/lib/store/cart-store";
 import { CartItem } from "~/types";
 import { getCartCookie } from "../cart.cookie";
 import { CartButtonClient } from "./cart-button.client";
@@ -11,7 +11,7 @@ export async function CartButton() {
   const cartResults = await Promise.all(
     cartCookie.map(({ productId }) => getProduct(productId.toString())),
   );
-  const cart: CartState["cart"] = [];
+  const cart: Cart = [];
   cartResults.forEach((value, idx) => {
     if (value.data) {
       cart.push({

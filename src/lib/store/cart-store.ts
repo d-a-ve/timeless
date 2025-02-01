@@ -1,5 +1,6 @@
 import { createStore } from "zustand/vanilla";
 import { Product } from "~/types";
+import { hasProductInCart } from "../utils";
 
 // product
 // a product count added
@@ -22,7 +23,7 @@ export type CartActions = {
   clearCart: () => void;
   incrementProductCount: (productId: number) => void;
   decrementProductCount: (productId: number) => void;
-  initCart: (cart: CartState["cart"]) => void;
+  initCart: (cart: Cart) => void;
   isProductInCart: (productid: number) => boolean;
 };
 
@@ -39,10 +40,7 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
       set(() => ({
         cart,
       })),
-    isProductInCart: (productId) =>
-      get().cart.findIndex(({ product }) => productId === product.id) !== -1
-        ? true
-        : false,
+    isProductInCart: (productId) => hasProductInCart(productId, get().cart),
     addToCart: (product, productCount) =>
       set((state) => {
         const newCart = state.cart.slice();

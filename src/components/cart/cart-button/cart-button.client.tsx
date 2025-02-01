@@ -15,21 +15,16 @@ import {
 } from "~/components/ui/drawer";
 import Separator from "~/components/ui/separator";
 import { URL_SEGMENTS } from "~/constants/url.const";
-import { CartState } from "~/lib/store/cart-store";
+import { Cart } from "~/lib/store/cart-store";
 import { useCartStore } from "~/providers/cart-provider";
-import { getCartSubtotal } from "../util";
+import { getCartSubtotal, getVAT } from "../util";
 
-export function CartButtonClient({
-  cartProp,
-}: {
-  cartProp: CartState["cart"];
-}) {
+export function CartButtonClient({ cartProp }: { cartProp: Cart }) {
   const [open, setOpen] = useState(false);
   const initCart = useCartStore((cart) => cart.initCart);
   const cart = useCartStore((cart) => cart.cart);
   const cartSubtotal = getCartSubtotal(cart);
-  // VAT is 5% of total amount to be paid
-  const cartVAT = Number((cartSubtotal * 0.05).toFixed(2));
+  const cartVAT = getVAT(cartSubtotal);
 
   useEffect(() => {
     initCart(cartProp);
@@ -50,45 +45,86 @@ export function CartButtonClient({
             <CircleX size={20} />
           </DrawerClose>
         </DrawerHeader>
-        <div className="overflow-hidden overflow-y-auto px-4">
-          {cart.map(({ product, productCount }) => (
-            <article key={product.id} className="flex items-start gap-3">
-              <div className="size-16 shrink-0">
-                <Image
-                  src={product.thumbnail}
-                  alt={product.title}
-                  width={400}
-                  height={400}
-                  className="size-full"
-                />
-              </div>
-              <div className="grow">
-                <p className="line-clamp-1">{product.title}</p>
-                <p className="line-clamp-1">{product.description}</p>
-              </div>
-              <p className="shrink-0">Count: {productCount}</p>
-            </article>
-          ))}
-        </div>
-        <Separator />
-        <DrawerFooter>
-          <p>Subtotal: ${cartSubtotal}</p>
-          <p>VAT: ${cartVAT}</p>
-          <p>Total: ${cartSubtotal + cartVAT}</p>
-          <div className="flex flex-wrap items-center gap-3 *:grow">
-            <DrawerClose asChild>
-              <button className="bg-red-500 p-2 text-white">Cancel</button>
-            </DrawerClose>
-            <AppLink
-              href={`/${URL_SEGMENTS.CHECKOUT}`}
-              className="block bg-green-500 p-2 text-white"
-              onClick={() => setOpen(false)}
-            >
-              Checkout
-            </AppLink>
-          </div>
-        </DrawerFooter>
+        <CartContent
+          closeDrawer={() => setOpen(false)}
+          cart={cart}
+          cartSubtotal={cartSubtotal}
+          cartVAT={cartVAT}
+        />
       </DrawerContent>
     </Drawer>
+  );
+}
+
+function CartContent({
+  cart,
+  cartSubtotal,
+  cartVAT,
+  closeDrawer,
+}: {
+  cart: Cart;
+  cartSubtotal: number;
+  cartVAT: number;
+  closeDrawer: () => void;
+}) {
+  if (cart.length === 0) {
+    return (
+      <div className="grid h-[max-content] place-items-center gap-6 px-4">
+        <div className="space-y-1 text-center">
+          <h3>Your cart is empty.</h3>
+          <p>Browse from our list of products and add to your cart.</p>
+        </div>
+        <AppLink
+          href={`/${URL_SEGMENTS.CATEGORIES}`}
+          className="block bg-green-500 p-2 text-white"
+          onClick={closeDrawer}
+        >
+          Browse
+        </AppLink>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="overflow-hidden overflow-y-auto px-4">
+        {cart.map(({ product, productCount }) => (
+          <article key={product.id} className="flex items-start gap-3">
+            <div className="size-16 shrink-0">
+              <Image
+                src={product.thumbnail}
+                alt={product.title}
+                width={400}
+                height={400}
+                className="size-full"
+              />
+            </div>
+            <div className="grow">
+              <p className="line-clamp-1">{product.title}</p>
+              <p className="line-clamp-1">{product.description}</p>
+            </div>
+            <p className="shrink-0">Count: {productCount}</p>
+          </article>
+        ))}
+      </div>
+      <Separator />
+      <DrawerFooter>
+        <p>Subtotal: ${cartSubtotal}</p>
+        <p>VAT: ${cartVAT}</p>
+        <p>Total: ${cartSubtotal + cartVAT}</p>
+        <div className="flex flex-wrap items-center gap-3 *:grow">
+          <DrawerClose asChild>
+            <button className="bg-red-500 p-2 text-white">Cancel</button>
+          </DrawerClose>
+          <AppLink
+            href={`/${URL_SEGMENTS.CHECKOUT}`}
+            className="block bg-green-500 p-2 text-white"
+            onClick={closeDrawer}
+          >
+            Checkout
+          </AppLink>
+        </div>
+      </DrawerFooter>
+    </>
   );
 }

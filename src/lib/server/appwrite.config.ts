@@ -1,7 +1,7 @@
 "use server";
 import "server-only";
 
-import { Account, Client } from "node-appwrite";
+import { Account, Client, Databases } from "node-appwrite";
 import { CONFIG_CLIENT, CONFIG_SERVER } from "~/config";
 import { getSession } from "./session";
 
@@ -22,6 +22,9 @@ export async function createSessionClient() {
 		get account() {
 			return new Account(client);
 		},
+		get db() {
+			return new Databases(client)
+		}
 	};
 }
 
@@ -32,8 +35,11 @@ export async function createAdminClient() {
 		.setKey(CONFIG_SERVER.APPWRITE_API_KEY);
 
 	return {
-		get account() {
-			return new Account(client);
-		},
-	};
+    get account() {
+      return new Account(client);
+    },
+    get db() {
+      return new Databases(client);
+    },
+  };
 }

@@ -1,3 +1,5 @@
+import { Models } from "node-appwrite";
+
 export * from "./utils";
 
 type Dimensions = {
@@ -56,4 +58,10 @@ export type Product = {
 export type CartItem = {
   quantity: number;
   productId: number;
+};
+
+export type CartDocument = Models.Document & {
+  userId: string;
+  productId: number;
+  quantity: number;
 };

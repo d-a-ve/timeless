@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { addToCartAction } from "~/actions/cart.action";
 import { useCartStore } from "~/providers/cart-provider";
 import { Product } from "~/types";
-import { AddToCartButton, addToCartAction } from "../cart/add-to-cart-button";
+import { AddToCartButton } from "../cart/add-to-cart-button";
 import { QUANTITY_INPUT_NAME, QuantityControls } from "../ui/quantity-controls";
 
 export default function ProductAddToCart({ product }: { product: Product }) {
@@ -15,7 +16,7 @@ export default function ProductAddToCart({ product }: { product: Product }) {
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (isProductInCart) return;
 
     setError(null);
@@ -30,7 +31,11 @@ export default function ProductAddToCart({ product }: { product: Product }) {
       return setError("Please increase quantity to at least 1 to add to cart.");
     }
 
-    addToCartAction(product, quantity, addToCartStoreAction);
+    // add to client store immediately to give feedback;
+    addToCartStoreAction(product, quantity);
+
+    // sync it remotely
+    addToCartAction(product, quantity);
   };
 
   return (

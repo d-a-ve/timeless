@@ -33,7 +33,7 @@ export async function getUserCart(userId: string) {
     const docs = await db.listDocuments<CartDocument>(
       CONFIG_SERVER.APPWRITE_DB_KEY,
       CONFIG_SERVER.APPWRITE_CART_COL_KEY,
-      [Query.equal("userId", userId), Query.limit(100)],
+      [Query.equal("userId", userId), Query.limit(100)], // Limiting by 100 becuase I believe no one's cart will get to 100 since there's no selective payment what is in the cart
     );
     return sendResponse(docs.documents);
   } catch (e) {

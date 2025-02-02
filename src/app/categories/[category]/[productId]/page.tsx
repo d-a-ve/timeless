@@ -9,13 +9,12 @@ export default async function ProductDetailPage({
   params: Promise<{ productId: string }>;
 }) {
   const { productId } = await params;
-  const productResponse = await getProduct(productId);
+  const { data: product, error } = await getProduct(productId);
 
-  if (!productResponse.data || productResponse.error) {
+  if (!product || error) {
     return <div>Oops, something went wrong. Please try again later.</div>;
   }
 
-  const { data: product } = productResponse;
   // const productAddedTocart = cartCookie
   //   ? JSON.parse(cartCookie).some(
   //       (cart: CartItem) => cart.productId === product.id,

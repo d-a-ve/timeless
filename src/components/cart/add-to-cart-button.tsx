@@ -1,31 +1,8 @@
 "use client";
 
-import { CartActions } from "~/lib/store/cart-store";
+import { addToCartAction } from "~/actions/cart.action";
 import { useCartStore } from "~/providers/cart-provider";
-import { CartItem, Product } from "~/types";
-import { getCartCookie, setCartCookie } from "./cart.cookie";
-
-export async function addToCartAction(
-  product: Product,
-  quantity: number,
-  addProductToCart: CartActions["addToCart"],
-) {
-  // check if user is authenticated
-  // if yes, add it to cart table on appwrite. else add to localstorage
-
-  addProductToCart(product, quantity);
-
-  const localCart = await getCartCookie();
-
-  const parsedCart: CartItem[] = localCart ? JSON.parse(localCart) : [];
-
-  parsedCart.push({
-    quantity,
-    productId: product.id,
-  });
-
-  setCartCookie(JSON.stringify(parsedCart));
-}
+import { Product } from "~/types";
 
 export function AddToCartButton({
   product,
@@ -46,7 +23,10 @@ export function AddToCartButton({
     <button
       onClick={
         type === "button" && !isProductInCart
-          ? () => addToCartAction(product, quantity || 1, addToCartStoreAction)
+          ? () => {
+              addToCartStoreAction(product, quantity || 1);
+              addToCartAction(product, quantity || 1);
+            }
           : undefined
       }
       className="relative z-10"

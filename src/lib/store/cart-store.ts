@@ -2,21 +2,12 @@ import { createStore } from "zustand/vanilla";
 import { Product } from "~/types";
 import { hasProductInCart } from "../utils";
 
-// product
-// a product count added
-export type Cart = { product: Product; productCount: number }[];
+export type Cart = { product: Product; productCount: number; docId?: string }[];
 
 export type CartState = {
   cart: Cart;
 };
 
-// actions
-// initCart
-// addToCart
-// removeFromCart
-// clearCart
-// increment product count
-// decrement product count
 export type CartActions = {
   addToCart: (product: Product, productCount: number) => void;
   removeFromCart: (productId: number) => void;
@@ -25,6 +16,7 @@ export type CartActions = {
   decrementProductCount: (productId: number) => void;
   initCart: (cart: Cart) => void;
   isProductInCart: (productid: number) => boolean;
+  updateProductDocId: (productid: number, docId: string) => void;
 };
 
 export type CartStore = CartState & CartActions;
@@ -47,6 +39,16 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
         newCart.push({ product, productCount });
         return { cart: newCart };
       }),
+    updateProductDocId: (productId, docId) =>
+      set((state) => {
+        return {
+          cart: state.cart.map((cartProduct) => ({
+            ...cartProduct,
+            docId:
+              cartProduct.product.id === productId ? docId : cartProduct.docId,
+          })),
+        };
+      }),
     removeFromCart: (productId) =>
       set((state) => ({
         cart: state.cart.filter(({ product }) => productId !== product.id),
@@ -54,22 +56,24 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
     clearCart: () => set(() => ({ cart: [] })),
     incrementProductCount: (productId) =>
       set((state) => ({
-        cart: state.cart.map(({ product, productCount }) => ({
-          product,
+        cart: state.cart.map((cartProduct) => ({
+          ...cartProduct,
           productCount:
-            product.id !== productId ? productCount : ++productCount,
+            cartProduct.product.id !== productId
+              ? cartProduct.productCount
+              : ++cartProduct.productCount,
         })),
       })),
     decrementProductCount: (productId) =>
       set((state) => ({
-        cart: state.cart.map(({ product, productCount }) => ({
-          product,
+        cart: state.cart.map((cartProduct) => ({
+          ...cartProduct,
           productCount:
-            productId !== product.id
-              ? productCount
-              : productCount === 1
+            productId !== cartProduct.product.id
+              ? cartProduct.productCount
+              : cartProduct.productCount === 1
                 ? 1
-                : --productCount,
+                : --cartProduct.productCount,
         })),
       })),
   }));

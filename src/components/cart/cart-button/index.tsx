@@ -1,25 +1,8 @@
-import { getProduct } from "~/actions/products.actions";
-import { Cart } from "~/lib/store/cart-store";
-import { CartItem } from "~/types";
-import { getCartCookie } from "../cart.cookie";
+import { getCartItems } from "~/actions/cart.action";
 import { CartButtonClient } from "./cart-button.client";
 
 export async function CartButton() {
-  const cartString = (await getCartCookie()) || "";
-  const cartCookie: CartItem[] =
-    cartString.length > 0 ? JSON.parse(cartString) : [];
-  const cartResults = await Promise.all(
-    cartCookie.map(({ productId }) => getProduct(productId.toString())),
-  );
-  const cart: Cart = [];
-  cartResults.forEach((value, idx) => {
-    if (value.data) {
-      cart.push({
-        product: value.data,
-        productCount: cartCookie[idx].quantity,
-      });
-    }
-  });
+  const cart = await getCartItems();
 
   return <CartButtonClient cartProp={cart} />;
 }

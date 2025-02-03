@@ -58,6 +58,7 @@ export type Product = {
 export type CartItem = {
   quantity: number;
   productId: number;
+  productDocId?: string;
 };
 
 export type CartDocument = Models.Document & {

@@ -16,6 +16,9 @@ export function AddToCartButton({
   productAdded?: boolean;
 }) {
   const addToCartStoreAction = useCartStore((cart) => cart.addToCart);
+  const updateProductDocIdCartStoreAction = useCartStore(
+    (cart) => cart.updateProductDocId,
+  );
   const isProductInCart =
     useCartStore((cart) => cart.isProductInCart(product.id)) || productAdded;
 
@@ -25,7 +28,14 @@ export function AddToCartButton({
         type === "button" && !isProductInCart
           ? () => {
               addToCartStoreAction(product, quantity || 1);
-              addToCartAction(product, quantity || 1);
+              addToCartAction(product, quantity || 1).then((res) => {
+                if (res?.data) {
+                  updateProductDocIdCartStoreAction(
+                    res.data.productId,
+                    res.data.userId,
+                  );
+                }
+              });
             }
           : undefined
       }

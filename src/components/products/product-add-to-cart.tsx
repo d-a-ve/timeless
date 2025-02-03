@@ -10,6 +10,9 @@ import { QUANTITY_INPUT_NAME, QuantityControls } from "../ui/quantity-controls";
 export default function ProductAddToCart({ product }: { product: Product }) {
   const [error, setError] = useState<string | null>(null);
   const addToCartStoreAction = useCartStore((cart) => cart.addToCart);
+  const updateProductDocIdCartStoreAction = useCartStore(
+    (cart) => cart.updateProductDocId,
+  );
   const isProductInCart = useCartStore((cart) =>
     cart.isProductInCart(product.id),
   );
@@ -35,7 +38,11 @@ export default function ProductAddToCart({ product }: { product: Product }) {
     addToCartStoreAction(product, quantity);
 
     // sync it remotely
-    addToCartAction(product, quantity);
+    addToCartAction(product, quantity).then((res) => {
+      if (res?.data) {
+        updateProductDocIdCartStoreAction(res.data.productId, res.data.userId);
+      }
+    });
   };
 
   return (

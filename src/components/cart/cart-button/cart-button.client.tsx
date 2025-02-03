@@ -23,10 +23,10 @@ import { getCartSubtotal, getVAT } from "../util";
 
 export function CartButtonClient({ cartProp }: { cartProp: Cart }) {
   const [open, setOpen] = useState(false);
-  const initCart = useCartStore((cart) => cart.initCart);
+
   const cart = useCartStore((cart) => cart.cart);
-  const cartSubtotal = getCartSubtotal(cart);
-  const cartVAT = getVAT(cartSubtotal);
+  const initCart = useCartStore((cart) => cart.initCart);
+
   const incrementProductQuantityStoreAction = useCartStore(
     (cart) => cart.incrementProductCount,
   );
@@ -34,6 +34,9 @@ export function CartButtonClient({ cartProp }: { cartProp: Cart }) {
     (cart) => cart.decrementProductCount,
   );
   const removeProductStoreAction = useCartStore((cart) => cart.removeFromCart);
+
+  const cartSubtotal = getCartSubtotal(cart);
+  const cartVAT = getVAT(cartSubtotal);
 
   useDebounce(open, cart, 1500, (debouncedCart: Cart) =>
     setCartCookie(

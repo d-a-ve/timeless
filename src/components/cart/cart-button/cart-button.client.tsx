@@ -3,7 +3,6 @@
 import { CircleX } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useDebounce } from "~/hooks/useDebounce";
 import { AppLink } from "~/components/ui/app-link";
 import {
   Drawer,
@@ -16,29 +15,32 @@ import {
 } from "~/components/ui/drawer";
 import Separator from "~/components/ui/separator";
 import { URL_SEGMENTS } from "~/constants/url.const";
+import { useDebounce } from "~/hooks/useDebounce";
+import { deleteCartDoc, updateCartDocQuantity } from "~/lib/server/db/cart.db";
 import { Cart } from "~/lib/store/cart-store";
 import { useCartStore } from "~/providers/cart-provider";
 import { setCartCookie } from "../cart.cookie";
 import { getCartSubtotal, getVAT } from "../util";
 
-export function CartButtonClient({ cartProp }: { cartProp: Cart }) {
+const DEBOUNCE_DELAY = 1500;
+
+export function CartButtonClient({
+  cartProp,
+  userId,
+}: {
+  cartProp: Cart;
+  userId?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   const cart = useCartStore((cart) => cart.cart);
   const initCart = useCartStore((cart) => cart.initCart);
 
-  const incrementProductQuantityStoreAction = useCartStore(
-    (cart) => cart.incrementProductCount,
-  );
-  const decrementProductQuantityStoreAction = useCartStore(
-    (cart) => cart.decrementProductCount,
-  );
-  const removeProductStoreAction = useCartStore((cart) => cart.removeFromCart);
-
   const cartSubtotal = getCartSubtotal(cart);
   const cartVAT = getVAT(cartSubtotal);
 
-  useDebounce(open, cart, 1500, (debouncedCart: Cart) =>
+  // this is to sync the zustand store to the cookies after the store has changed. It works just when the user hasn't signed in.
+  useDebounce(open && !userId, cart, DEBOUNCE_DELAY, (debouncedCart: Cart) =>
     setCartCookie(
       JSON.stringify(
         debouncedCart.map(({ product: { id }, productCount }) => ({
@@ -73,9 +75,6 @@ export function CartButtonClient({ cartProp }: { cartProp: Cart }) {
           cart={cart}
           cartSubtotal={cartSubtotal}
           cartVAT={cartVAT}
-          incrementAction={incrementProductQuantityStoreAction}
-          decrementAction={decrementProductQuantityStoreAction}
-          removeProductAction={removeProductStoreAction}
         />
       </DrawerContent>
     </Drawer>
@@ -87,17 +86,11 @@ function CartContent({
   cartSubtotal,
   cartVAT,
   closeDrawer,
-  incrementAction,
-  decrementAction,
-  removeProductAction,
 }: {
   cart: Cart;
   cartSubtotal: number;
   cartVAT: number;
   closeDrawer: () => void;
-  incrementAction: (productId: number) => void;
-  decrementAction: (productId: number) => void;
-  removeProductAction: (productId: number) => void;
 }) {
   if (cart.length === 0) {
     return (
@@ -120,45 +113,8 @@ function CartContent({
   return (
     <>
       <div className="overflow-hidden overflow-y-auto px-4">
-        {cart.map(({ product, productCount }) => (
-          <article key={product.id} className="flex items-start gap-3">
-            <div className="size-16 shrink-0">
-              <Image
-                src={product.thumbnail}
-                alt={product.title}
-                width={400}
-                height={400}
-                className="size-full"
-              />
-            </div>
-            <div className="grow">
-              <div>
-                <p className="line-clamp-1">{product.title}</p>
-                <p className="line-clamp-1">{product.description}</p>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <button
-                  className="rounded-lg border border-gray-300 px-2 py-1"
-                  onClick={() => incrementAction(product.id)}
-                >
-                  Increment
-                </button>
-                <button
-                  className="rounded-lg border border-gray-300 px-2 py-1"
-                  onClick={() => decrementAction(product.id)}
-                >
-                  Decrement
-                </button>
-                <button
-                  className="rounded-lg border border-gray-300 px-2 py-1"
-                  onClick={() => removeProductAction(product.id)}
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-            <p className="shrink-0">Count: {productCount}</p>
-          </article>
+        {cart.map((cartItem) => (
+          <CartItemCard key={cartItem.product.id} {...cartItem} />
         ))}
       </div>
       <Separator />
@@ -180,5 +136,84 @@ function CartContent({
         </div>
       </DrawerFooter>
     </>
+  );
+}
+
+function CartItemCard({
+  product,
+  productCount,
+  docId,
+  isRemoved,
+}: Cart[number]) {
+  const incrementProductQuantityStoreAction = useCartStore(
+    (cart) => cart.incrementProductCount,
+  );
+  const decrementProductQuantityStoreAction = useCartStore(
+    (cart) => cart.decrementProductCount,
+  );
+  const removeProductStoreAction = useCartStore((cart) => cart.removeFromCart);
+  const permanentlyRemoveProductStoreAction = useCartStore(
+    (cart) => cart.permanentlyRemoveFromCart,
+  );
+
+  // this updates the remote db when the changes to the  quantity of a product item hasn't changed in DEBOUNCE_DELAY. this works only when user is signed in
+  useDebounce(!!docId, productCount, DEBOUNCE_DELAY, (value) => {
+    if (!docId) return;
+
+    updateCartDocQuantity(docId, value);
+  });
+
+  // this handles the soft removal of the cart item and updates the remote db then permanently delete the cart item once successfully updated the remote db. this works only when user is signed in.
+  useDebounce(!!docId, isRemoved, DEBOUNCE_DELAY, (value) => {
+    if (!docId || !value) return;
+
+    deleteCartDoc(docId).then(({ data }) => {
+      if (data) {
+        permanentlyRemoveProductStoreAction(product.id);
+      }
+    });
+  });
+
+  if (isRemoved) return null;
+
+  return (
+    <article className="flex items-start gap-3">
+      <div className="size-16 shrink-0">
+        <Image
+          src={product.thumbnail}
+          alt={product.title}
+          width={400}
+          height={400}
+          className="size-full"
+        />
+      </div>
+      <div className="grow">
+        <div>
+          <p className="line-clamp-1">{product.title}</p>
+          <p className="line-clamp-1">{product.description}</p>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <button
+            className="rounded-lg border border-gray-300 px-2 py-1"
+            onClick={() => incrementProductQuantityStoreAction(product.id)}
+          >
+            Increment
+          </button>
+          <button
+            className="rounded-lg border border-gray-300 px-2 py-1"
+            onClick={() => decrementProductQuantityStoreAction(product.id)}
+          >
+            Decrement
+          </button>
+          <button
+            className="rounded-lg border border-gray-300 px-2 py-1"
+            onClick={() => removeProductStoreAction(product.id)}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <p className="shrink-0">Count: {productCount}</p>
+    </article>
   );
 }

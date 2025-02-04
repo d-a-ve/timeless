@@ -2,7 +2,12 @@ import { createStore } from "zustand/vanilla";
 import { Product } from "~/types";
 import { hasProductInCart } from "../utils";
 
-export type Cart = { product: Product; productCount: number; docId?: string }[];
+export type Cart = {
+  product: Product;
+  productCount: number;
+  docId?: string;
+  isRemoved: boolean;
+}[];
 
 export type CartState = {
   cart: Cart;
@@ -11,6 +16,7 @@ export type CartState = {
 export type CartActions = {
   addToCart: (product: Product, productCount: number) => void;
   removeFromCart: (productId: number) => void;
+  permanentlyRemoveFromCart: (productId: number) => void;
   clearCart: () => void;
   incrementProductCount: (productId: number) => void;
   decrementProductCount: (productId: number) => void;
@@ -36,7 +42,7 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
     addToCart: (product, productCount) =>
       set((state) => {
         const newCart = state.cart.slice();
-        newCart.push({ product, productCount });
+        newCart.push({ product, productCount, isRemoved: false });
         return { cart: newCart };
       }),
     updateProductDocId: (productId, docId) =>
@@ -51,7 +57,15 @@ export const createCartStore = (initState: CartState = defaultInitCart) => {
       }),
     removeFromCart: (productId) =>
       set((state) => ({
-        cart: state.cart.filter(({ product }) => productId !== product.id),
+        cart: state.cart.map((cartProduct) => ({
+          ...cartProduct,
+          isRemoved:
+            cartProduct.product.id === productId ? true : cartProduct.isRemoved,
+        })),
+      })),
+    permanentlyRemoveFromCart: (productId) =>
+      set((state) => ({
+        cart: state.cart.filter(({ product }) => product.id !== productId),
       })),
     clearCart: () => set(() => ({ cart: [] })),
     incrementProductCount: (productId) =>

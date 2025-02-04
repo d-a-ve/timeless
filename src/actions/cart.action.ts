@@ -59,6 +59,7 @@ export async function getCartItems() {
         product: value.data,
         productCount: fetchedCart[idx].quantity,
         docId: fetchedCart[idx].productDocId,
+        isRemoved: false,
       });
     }
   });
